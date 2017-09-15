@@ -6,13 +6,11 @@ import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.api.internal.json.objects.EmbedObject;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
+import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IReaction;
 import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.MessageBuilder;
-import sx.blah.discord.util.MissingPermissionsException;
-import sx.blah.discord.util.RateLimitException;
+import sx.blah.discord.util.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +37,7 @@ public class CommandManager {
                 offenseCount.put(message.getAuthor(), offenseCount.get(message.getAuthor()) + 1);
                 // TODO Clean this up with some methods for the reactions
                 if (offenseCount.get(message.getAuthor()) == 4) {
-                    message.addReaction(EmojiManager.getForAlias("rotating_light"));
+                    RequestBuffer.request(() -> message.addReaction(EmojiManager.getForAlias("rotating_light")));
                     new Thread(() -> {
                         try {
                             Thread.sleep(3000);
@@ -58,7 +56,7 @@ public class CommandManager {
                     }).start();
                 }
                 if (offenseCount.get(message.getAuthor()) == 3) {
-                    message.addReaction(EmojiManager.getForAlias("warning"));
+                    RequestBuffer.request(() -> message.addReaction(EmojiManager.getForAlias("warning")));
                     new Thread(() -> {
                         try {
                             Thread.sleep(3000);
@@ -89,13 +87,13 @@ public class CommandManager {
                             pmanager.mute(message.getAuthor());
                         }
                     }).start();
-                    message.getChannel().sendMessage(message.getAuthor().mention() + " has been automatically muted for 5 minutes for spamming.");
+                    sendMessage(message.getAuthor().mention() + " has been automatically muted for 5 minutes for spamming.", message.getChannel());
                     new Thread(() -> {
                         final long mutetime = System.currentTimeMillis();
                         while (true) {
                             if (System.currentTimeMillis() - mutetime > 5 * 60 * 1000) {
                                 pmanager.unmute(message.getAuthor());
-                                message.getChannel().sendMessage(message.getAuthor().mention() + " has been unmuted after spamming.");
+                                sendMessage(message.getAuthor().mention() + " has been unmuted after spamming.", message.getChannel());
                                 return;
                             }
                             try {
@@ -134,7 +132,13 @@ public class CommandManager {
     }
 
     public void sendMessage(String message, MessageReceivedEvent event) throws DiscordException, MissingPermissionsException, RateLimitException {
-        new MessageBuilder(client).appendContent(message).withChannel(event.getMessage().getChannel()).build();
+        sendMessage(message, event.getChannel());
+    }
+
+    public void sendMessage(String message, IChannel channel) {
+        RequestBuffer.request(() -> {
+            channel.sendMessage(message);
+        });
     }
 
     public void sendEmbedMessage(String message, MessageReceivedEvent event, EmbedObject obj) throws DiscordException, MissingPermissionsException, RateLimitException {
