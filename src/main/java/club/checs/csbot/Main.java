@@ -23,7 +23,7 @@ public class Main {
     public static void main(String[] args) {
         File clientIdFile = new File("botclient.txt");
         if (!clientIdFile.exists()) {
-            System.err.println("Couldn't find botclient.txt! This file should contain the bot client id.");
+            System.err.println("Couldn't find botclient.txt! This file should contain the bot client private key.");
             return;
         }
 
