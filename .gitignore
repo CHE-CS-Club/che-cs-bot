@@ -104,3 +104,4 @@ local.properties
 # Hide the file containing the bot's client id
 /botclient.txt
 /russiankey.txt
+/dynamiccompile/
