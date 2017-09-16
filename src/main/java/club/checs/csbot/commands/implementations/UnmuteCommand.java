@@ -38,7 +38,7 @@ public class UnmuteCommand extends SmartCommand {
             }
             call.sendMessage(((IUser) call.getArg("user")).getName() + " has been unmuted for: " + call.getArg("message"));
             try {
-                if (!((IUser) call.getArg("user")).getID().equals(call.getSender().getID()))
+                if (!((IUser) call.getArg("user")).getStringID().equals(call.getSender().getStringID()))
                     ((IUser) call.getArg("user")).getOrCreatePMChannel().sendMessage("You have been unmuted in the CHE Robotics Server for: " + call.getArg("message"));
             } catch (MissingPermissionsException | RateLimitException | DiscordException e) {
                 e.printStackTrace();
@@ -53,7 +53,7 @@ public class UnmuteCommand extends SmartCommand {
         List<IRole> roles = command.getSender().getRolesForGuild(command.getEvent().getGuild());
         for (IRole role : roles)
             for (int i = 0; i < allowedRoles.length; i++)
-                if (role.getID().equalsIgnoreCase(allowedRoles[i]))
+                if (role.getStringID().equalsIgnoreCase(allowedRoles[i]))
                     return true;
         return false;
     }

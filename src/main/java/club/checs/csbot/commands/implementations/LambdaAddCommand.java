@@ -150,7 +150,7 @@ public class LambdaAddCommand extends SmartCommand {
         List<IRole> roles = command.getSender().getRolesForGuild(command.getEvent().getGuild());
         for (IRole role : roles)
             for (int i = 0; i < allowedRoles.length; i++)
-                if (role.getID().equalsIgnoreCase(allowedRoles[i]))
+                if (role.getStringID().equalsIgnoreCase(allowedRoles[i]))
                     return true;
         return false;
     }

@@ -62,12 +62,12 @@ public class Main {
             call.sendMessage("***Look, it has too much give!***");
         }));
         cmanager.addCommand("getguild", new SmartCommand("getguild", (call) -> {
-            call.sendMessage("Guild ID: " + call.getEvent().getGuild().getID());
+            call.sendMessage("Guild ID: " + call.getEvent().getGuild().getStringID());
         }));
         cmanager.addCommand("getroles", new SmartCommand("getroles", (call) -> {
             StringBuilder builder = new StringBuilder();
             for (IRole role : call.getEvent().getGuild().getRolesForUser(call.getSender()))
-                builder.append(role).append(": ").append(role.getID()).append(" ");
+                builder.append(role).append(": ").append(role.getStringID()).append(" ");
             call.sendMessage("Roles: " + builder.toString());
         }));
         cmanager.addCommand("backwards", new BackwardsCommand("backwards"));

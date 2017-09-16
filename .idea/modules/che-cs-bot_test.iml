@@ -10,7 +10,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="che-cs-bot_main" />
-    <orderEntry type="library" name="Gradle: com.github.austinv11:Discord4j:2.8.4" level="project" />
+    <orderEntry type="library" name="Gradle: com.github.austinv11:Discord4j:2.9" level="project" />
     <orderEntry type="library" name="Gradle: com.sedmelluq:lavaplayer:1.2.29" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.8.1" level="project" />
     <orderEntry type="library" name="Gradle: junit:junit:4.11" level="project" />

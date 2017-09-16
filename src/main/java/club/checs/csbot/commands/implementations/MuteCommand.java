@@ -38,7 +38,7 @@ public class MuteCommand extends SmartCommand {
             }
             call.sendMessage(((IUser) call.getArg("user")).getName() + " has been muted for: " + call.getArg("message"));
             try {
-                if (!((IUser) call.getArg("user")).getID().equals("291729108084195338"))
+                if (!((IUser) call.getArg("user")).getStringID().equals("291729108084195338"))
                     ((IUser) call.getArg("user")).getOrCreatePMChannel().sendMessage("You have been muted in the CHE CS Server for: " + call.getArg("message"));
             } catch (MissingPermissionsException | RateLimitException | DiscordException e) {
                 e.printStackTrace();
@@ -53,7 +53,7 @@ public class MuteCommand extends SmartCommand {
         List<IRole> roles = command.getSender().getRolesForGuild(command.getEvent().getGuild());
         for (IRole role : roles)
             for (int i = 0; i < allowedRoles.length; i++)
-                if (role.getID().equalsIgnoreCase(allowedRoles[i]))
+                if (role.getStringID().equalsIgnoreCase(allowedRoles[i]))
                     return true;
         return false;
     }
