@@ -5,6 +5,9 @@ import club.checs.csbot.commands.implementations.*;
 import club.checs.csbot.commands.implementations.vexcommands.AwardsCommand;
 import club.checs.csbot.commands.implementations.vexcommands.RankCommand;
 import club.checs.csbot.commands.implementations.vexcommands.TeamCommand;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.auth.FirebaseCredentials;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventDispatcher;
@@ -14,6 +17,8 @@ import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 
@@ -21,6 +26,7 @@ public class Main {
     public static CommandManager cmanager;
 
     public static void main(String[] args) {
+        // Setup the bot
         File clientIdFile = new File("botclient.txt");
         if (!clientIdFile.exists()) {
             System.err.println("Couldn't find botclient.txt! This file should contain the bot client private key.");
@@ -35,12 +41,42 @@ public class Main {
             return;
         }
 
-        IDiscordClient client = createClient(id, true);
+        IDiscordClient client = createClient(id);
+
+        if (client == null) {
+            System.out.println("Failed to create client, it was null!");
+            return;
+        }
 
         EventDispatcher dispatcher = client.getDispatcher(); // Gets the EventDispatcher instance for this client instance
 
+        // Set up firebase
+        FileInputStream serviceAccount = null;
+        try {
+            serviceAccount = new FileInputStream("che-cs-bot-google-key.json");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        FirebaseOptions options = null;
+        try {
+            options = new FirebaseOptions.Builder()
+                    .setCredential(FirebaseCredentials.fromCertificate(serviceAccount))
+                    .setDatabaseUrl("https://che-cs-bot.firebaseio.com/")
+                    .build();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        FirebaseApp.initializeApp(options);
+
+        // Create permission manager
         PermManager pmanager = new PermManager();
         cmanager = new CommandManager(client, pmanager);
+
+        // Set up commands
         cmanager.addCommand("boldtest", new TestCommand("boldtest"));
         cmanager.addCommand("error", new SmartCommand("error", (call) -> {
             @SuppressWarnings("NumericOverflow") int i = 10 / 0;
@@ -61,15 +97,6 @@ public class Main {
         cmanager.addCommand("ryan", new SmartCommand("ryan", (call) -> {
             call.sendMessage("***Look, it has too much give!***");
         }));
-        cmanager.addCommand("getguild", new SmartCommand("getguild", (call) -> {
-            call.sendMessage("Guild ID: " + call.getEvent().getGuild().getStringID());
-        }));
-        cmanager.addCommand("getroles", new SmartCommand("getroles", (call) -> {
-            StringBuilder builder = new StringBuilder();
-            for (IRole role : call.getEvent().getGuild().getRolesForUser(call.getSender()))
-                builder.append(role).append(": ").append(role.getStringID()).append(" ");
-            call.sendMessage("Roles: " + builder.toString());
-        }));
         cmanager.addCommand("backwards", new BackwardsCommand("backwards"));
         cmanager.addCommand("badword", new CensorCommand("badword"));
         cmanager.addCommand("censor", new CensorCommand("censor"));
@@ -82,18 +109,32 @@ public class Main {
         cmanager.addCommand("unmute", new UnmuteCommand("unmute", client, pmanager));
         cmanager.addCommand("lambda", new LambdaAddCommand("lambda"));
 
+        // Utility/dev commands
+        cmanager.addCommand("getguild", new SmartCommand("getguild", (call) -> {
+            call.sendMessage("Guild ID: " + call.getEvent().getGuild().getStringID());
+        }));
+        cmanager.addCommand("getroles", new SmartCommand("getroles", (call) -> {
+            StringBuilder builder = new StringBuilder();
+            for (IRole role : call.getEvent().getGuild().getRolesForUser(call.getSender()))
+                builder.append(role).append(": ").append(role.getStringID()).append(" ");
+            call.sendMessage("Roles: " + builder.toString());
+        }));
+        cmanager.addCommand("getchannel", new SmartCommand("getchannel", (call) -> {
+            call.sendMessage("Channel ID: " + call.getEvent().getChannel().getStringID());
+        }));
+
+        // Register command listener
         dispatcher.registerListener(cmanager); // Registers the command manager's listener
+
+        // Register verify listeners
+        dispatcher.registerListener(new RoleManager());
     }
 
-    public static IDiscordClient createClient(String token, boolean login) { // Returns a new instance of the Discord client
+    private static IDiscordClient createClient(String token) { // Returns a new instance of the Discord client
         ClientBuilder clientBuilder = new ClientBuilder(); // Creates the ClientBuilder instance
         clientBuilder.withToken(token); // Adds the login info to the builder
         try {
-            if (login) {
-                return clientBuilder.login(); // Creates the client instance and logs the client in
-            } else {
-                return clientBuilder.build(); // Creates the client instance but it doesn't log the client in yet, you would have to call client.login() yourself
-            }
+            return clientBuilder.login(); // Creates the client instance and logs the client in
         } catch (DiscordException e) { // This is thrown if there was a problem building the client
             e.printStackTrace();
             return null;

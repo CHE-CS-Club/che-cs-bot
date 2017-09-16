@@ -28,7 +28,7 @@ public class CommandManager {
     }
 
     @EventSubscriber
-    public void OnMesageEvent(MessageReceivedEvent event) throws DiscordException, MissingPermissionsException, RateLimitException {
+    public void onMesageEvent(MessageReceivedEvent event) throws DiscordException, MissingPermissionsException, RateLimitException {
         IMessage message = event.getMessage(); // Get the message
         if (lastMessage.containsKey(message.getAuthor())) {
             // If last message was sent within 3 seconds
