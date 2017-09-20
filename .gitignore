@@ -102,8 +102,6 @@ local.properties
 .worksheet
 
 # Hide the file containing the bot's client id
-/botclient.txt
-/russiankey.txt
 /dynamiccompile/
 /che-cs-bot-google-key.json
 /keystore.json

@@ -1,6 +1,7 @@
 package club.checs.csbot.commands.implementations;
 
 import club.checs.csbot.HttpsRequest;
+import club.checs.csbot.Keystore;
 import club.checs.csbot.commands.CommandCall;
 import club.checs.csbot.commands.SmartCommand;
 import club.checs.csbot.commands.arguments.LangArg;
@@ -8,34 +9,17 @@ import club.checs.csbot.commands.arguments.StringArg;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-
 //Super Secret Api key: trnsl.1.1.20170316T223724Z.8238214aa838c9dc.681e23d2bdb0abd2b0d2d9e52b10f212bc257a39
 public class TranslateCommand extends SmartCommand {
-    private final String API_KEY;
+    private final String API_KEY = Keystore.getKey("yandex");
 
     public TranslateCommand(String command) {
         super(command);
         this.addArgument(new LangArg("to"));
         this.addArgument(new LangArg("from").setOptional(true).continueIfMissing());
         this.addArgument(new StringArg("message"));
-        File clientIdFile = new File("russiankey.txt");
-        if (!clientIdFile.exists()) {
-            System.err.println("Couldn't find russiankey.txt! This file should contain the russian api key.");
-            API_KEY = "";
-            return;
-        }
-        String id;
-        try {
-            id = Files.lines(clientIdFile.toPath()).iterator().next();
-        } catch (IOException e) {
-            e.printStackTrace();
-            API_KEY = "";
-            return;
-        }
-        API_KEY = id;
+        if (API_KEY == null)
+            System.err.println("Uh oh, couldn't find yandex key in the keystore!");
     }
 
     public void onCommand(CommandCall call) {

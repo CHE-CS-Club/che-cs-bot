@@ -8,28 +8,21 @@ import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventDispatcher;
 import sx.blah.discord.util.DiscordException;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
 
 public class Main {
     public static CommandManager cmanager;
 
     public static void main(String[] args) {
-        // Setup the bot
-        File clientIdFile = new File("botclient.txt");
-        if (!clientIdFile.exists()) {
-            System.err.println("Couldn't find botclient.txt! This file should contain the bot client private key.");
-            return;
-        }
-
         String id;
         try {
-            id = Files.lines(clientIdFile.toPath()).iterator().next();
-        } catch (IOException e) {
+            Keystore.setKeyStore("keystore.json");
+            id = Keystore.getKey("botclient");
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
+            System.err.println("Couldn't find keystore.json! This file should contain all of the bots private keys.");
             return;
         }
 
