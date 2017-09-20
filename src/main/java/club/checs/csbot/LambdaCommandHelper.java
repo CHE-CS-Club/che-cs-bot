@@ -11,13 +11,13 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 
-public class LambdaCommandHelper {
+class LambdaCommandHelper {
     // Not intended to be constructed
     private LambdaCommandHelper() {
 
     }
 
-    public static void registerLambdaCommands(CommandManager cmanager, PermManager pmanager, IDiscordClient client) {
+    static void registerLambdaCommands(CommandManager cmanager, PermManager pmanager, IDiscordClient client) {
         // General commands
         cmanager.addCommand("boldtest", new TestCommand("boldtest"));
         cmanager.addCommand("error", new SmartCommand("error", (call) -> {
