@@ -26,7 +26,6 @@ public class RoleManager {
             while (!client.isReady())  // Wait for client to be ready
                 try {
                     Thread.sleep(50);
-                    System.out.println("Waiting for ready... " + j++);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -38,7 +37,6 @@ public class RoleManager {
             }
             MessageHistory history = channel.getFullMessageHistory();
             for (int i = history.size() - 2; i >= 0; i--) {
-                System.out.println("Processing: " + history.get(i).getContent());
                 processVerifyMessage(history.get(i)); // Hopefully doesn't affect the MessageHistory when it deletes
             }
         }).start();
