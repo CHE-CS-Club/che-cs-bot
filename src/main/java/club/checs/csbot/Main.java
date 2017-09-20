@@ -127,7 +127,7 @@ public class Main {
         dispatcher.registerListener(cmanager); // Registers the command manager's listener
 
         // Register verify listeners
-        dispatcher.registerListener(new RoleManager());
+        dispatcher.registerListener(new RoleManager(client));
     }
 
     private static IDiscordClient createClient(String token) { // Returns a new instance of the Discord client
