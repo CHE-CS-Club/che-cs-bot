@@ -15,7 +15,6 @@ public class UserArg extends SingleCommandArg<IUser> {
 
     @Override
     public void processArgs(String string, HashMap<String, Object> results) {
-        System.out.println("Before: " + string + " After: " + string.substring(3, string.length() - 1));
         if (string.charAt(2) == '!')
             setResult(results, client.getUserByID(Long.parseLong(string.substring(3, string.length() - 1))));
         else
@@ -24,7 +23,6 @@ public class UserArg extends SingleCommandArg<IUser> {
 
     @Override
     public boolean hasValidInput(String string) {
-        System.out.println(string);
         return string.startsWith("<@") && string.endsWith(">");
     }
 }
