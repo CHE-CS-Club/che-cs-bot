@@ -1,11 +1,11 @@
 package club.checs.csbot.commands.implementations;
 
-import club.checs.csbot.PermManager;
 import club.checs.csbot.builder.ResponseBuilder;
 import club.checs.csbot.commands.CommandCall;
 import club.checs.csbot.commands.SmartCommand;
 import club.checs.csbot.commands.arguments.StringArg;
 import club.checs.csbot.commands.arguments.UserArg;
+import club.checs.csbot.managers.PermManager;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;

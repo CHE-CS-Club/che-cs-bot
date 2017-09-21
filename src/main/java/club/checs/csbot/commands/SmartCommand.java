@@ -1,7 +1,7 @@
 package club.checs.csbot.commands;
 
-import club.checs.csbot.CommandManager;
 import club.checs.csbot.commands.arguments.CommandArg;
+import club.checs.csbot.managers.CommandManager;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.EmbedBuilder;

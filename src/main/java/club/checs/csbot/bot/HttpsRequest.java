@@ -1,4 +1,4 @@
-package club.checs.csbot;
+package club.checs.csbot.bot;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;

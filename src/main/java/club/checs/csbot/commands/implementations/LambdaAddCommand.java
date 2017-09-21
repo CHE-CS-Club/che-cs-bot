@@ -1,6 +1,6 @@
 package club.checs.csbot.commands.implementations;
 
-import club.checs.csbot.Main;
+import club.checs.csbot.BotMain;
 import club.checs.csbot.commands.CommandCall;
 import club.checs.csbot.commands.SmartCommand;
 import club.checs.csbot.commands.arguments.CodeArgument;
@@ -125,7 +125,7 @@ public class LambdaAddCommand extends SmartCommand {
                             // Cast to the DoStuff interface
                             OnCommand stuffToDo = (OnCommand) obj;
                             // Run it baby
-                            Main.cmanager.addCommand(call.getArg("commandName").toString(),
+                            BotMain.cmanager.addCommand(call.getArg("commandName").toString(),
                                     new SmartCommand(call.getArg("commandName").toString(), stuffToDo));
                         }
                     /* Load and execute */

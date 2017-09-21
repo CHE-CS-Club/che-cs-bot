@@ -1,6 +1,6 @@
 package club.checs.csbot.commands.implementations.vexcommands;
 
-import club.checs.csbot.HttpsRequest;
+import club.checs.csbot.bot.HttpsRequest;
 import club.checs.csbot.commands.SmartCommand;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

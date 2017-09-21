@@ -1,7 +1,7 @@
 package club.checs.csbot.commands.implementations;
 
-import club.checs.csbot.HttpsRequest;
-import club.checs.csbot.Keystore;
+import club.checs.csbot.bot.HttpsRequest;
+import club.checs.csbot.bot.Keystore;
 import club.checs.csbot.commands.CommandCall;
 import club.checs.csbot.commands.SmartCommand;
 import club.checs.csbot.commands.arguments.LangArg;

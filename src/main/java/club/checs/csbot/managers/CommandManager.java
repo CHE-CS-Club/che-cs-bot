@@ -1,4 +1,4 @@
-package club.checs.csbot;
+package club.checs.csbot.managers;
 
 import club.checs.csbot.commands.SmartCommand;
 import com.vdurmont.emoji.EmojiManager;

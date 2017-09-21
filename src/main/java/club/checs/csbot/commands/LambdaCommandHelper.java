@@ -1,23 +1,24 @@
-package club.checs.csbot;
+package club.checs.csbot.commands;
 
-import club.checs.csbot.commands.SmartCommand;
 import club.checs.csbot.commands.implementations.*;
 import club.checs.csbot.commands.implementations.vexcommands.AwardsCommand;
 import club.checs.csbot.commands.implementations.vexcommands.RankCommand;
 import club.checs.csbot.commands.implementations.vexcommands.TeamCommand;
+import club.checs.csbot.managers.CommandManager;
+import club.checs.csbot.managers.PermManager;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 
-class LambdaCommandHelper {
+public class LambdaCommandHelper {
     // Not intended to be constructed
     private LambdaCommandHelper() {
 
     }
 
-    static void registerLambdaCommands(CommandManager cmanager, PermManager pmanager, IDiscordClient client) {
+    public static void registerLambdaCommands(CommandManager cmanager, PermManager pmanager, IDiscordClient client) {
         // General commands
         cmanager.addCommand("boldtest", new TestCommand("boldtest"));
         cmanager.addCommand("error", new SmartCommand("error", (call) -> {

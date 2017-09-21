@@ -1,4 +1,4 @@
-package club.checs.csbot;
+package club.checs.csbot.managers;
 
 import com.google.firebase.database.*;
 import sx.blah.discord.api.IDiscordClient;
@@ -21,8 +21,7 @@ public class RoleManager {
 
     public RoleManager(IDiscordClient client) {
         // See if any verify were sent when the bot was offline
-        new Thread(() -> {
-            int j = 0;
+        new Thread(() -> { // Bot isn't immediately ready when this is constructed. Wait for it to be ready async.
             while (!client.isReady())  // Wait for client to be ready
                 try {
                     Thread.sleep(50);
