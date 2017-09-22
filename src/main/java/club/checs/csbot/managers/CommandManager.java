@@ -8,7 +8,6 @@ import sx.blah.discord.api.internal.json.objects.EmbedObject;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IReaction;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.*;
 
@@ -36,41 +35,16 @@ public class CommandManager {
                 offenseCount.putIfAbsent(message.getAuthor(), 0);
                 offenseCount.put(message.getAuthor(), offenseCount.get(message.getAuthor()) + 1);
                 // TODO Clean this up with some methods for the reactions
-                if (offenseCount.get(message.getAuthor()) == 4) {
-                    RequestBuffer.request(() -> message.addReaction(EmojiManager.getForAlias("rotating_light")));
+                if (offenseCount.get(message.getAuthor()) == 3 || offenseCount.get(message.getAuthor()) == 4) {
+                    RequestBuffer.request(() -> message.addReaction(offenseCount.get(message.getAuthor()) == 4 ?
+                            EmojiManager.getForAlias("rotating_light") : EmojiManager.getForAlias("warning")));
                     new Thread(() -> {
                         try {
                             Thread.sleep(3000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         } finally {
-                            IReaction reactionSaved = null;
-                            for (IReaction reaction : message.getReactions()) {
-                                if (reaction.getUnicodeEmoji() == EmojiManager.getForAlias("rotating_light")) {
-                                    reactionSaved = reaction;
-                                    break;
-                                }
-                            }
-                            message.removeReaction(reactionSaved);
-                        }
-                    }).start();
-                }
-                if (offenseCount.get(message.getAuthor()) == 3) {
-                    RequestBuffer.request(() -> message.addReaction(EmojiManager.getForAlias("warning")));
-                    new Thread(() -> {
-                        try {
-                            Thread.sleep(3000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        } finally {
-                            IReaction reactionSaved = null;
-                            for (IReaction reaction : message.getReactions()) {
-                                if (reaction.getUnicodeEmoji() == EmojiManager.getForAlias("warning")) {
-                                    reactionSaved = reaction;
-                                    break;
-                                }
-                            }
-                            message.removeReaction(reactionSaved);
+                            RequestBuffer.request(message::removeAllReactions);
                         }
                     }).start();
                 }

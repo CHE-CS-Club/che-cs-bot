@@ -16,10 +16,10 @@ import sx.blah.discord.util.RequestBuffer;
 import java.util.List;
 
 public class RoleManager {
-    private DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("users");
-    private IChannel rulesChannel;
+    private IDiscordClient client;
 
     public RoleManager(IDiscordClient client) {
+        this.client = client;
         // See if any verify were sent when the bot was offline
         new Thread(() -> { // Bot isn't immediately ready when this is constructed. Wait for it to be ready async.
             while (!client.isReady())  // Wait for client to be ready
@@ -28,15 +28,15 @@ public class RoleManager {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            IChannel channel = client.getChannelByID(358403953932894208L); // #verify
-            rulesChannel = client.getChannelByID(356898774569713664L); // #rules
-            if (channel == null) {
-                System.out.println("Couldn't find #verify to check!");
-                return;
-            }
-            MessageHistory history = channel.getFullMessageHistory();
-            for (int i = history.size() - 2; i >= 0; i--) {
-                processVerifyMessage(history.get(i)); // Hopefully doesn't affect the MessageHistory when it deletes
+            for (IGuild guild : client.getGuilds()) {
+                for (IChannel channel : guild.getChannels()) {
+                    if (channel.getName().equalsIgnoreCase("verify")) {
+                        MessageHistory history = channel.getFullMessageHistory();
+                        for (int i = history.size() - 2; i >= 0; i--) {
+                            processVerifyMessage(history.get(i)); // Hopefully doesn't affect the MessageHistory when it deletes
+                        }
+                    }
+                }
             }
         }).start();
     }
@@ -44,13 +44,13 @@ public class RoleManager {
     @EventSubscriber
     public void onUserReact(ReactionEvent e) {
         // TODO Somehow allow servers to create rules channels. For now, this one is che cs specific
-        if (!e.getChannel().getStringID().equals("356898774569713664")) // #rules
+        if (!e.getChannel().getName().equalsIgnoreCase("rules")) // #rules
             return;
         // Make sure the user actually added a reaction and that it was the correct one
         // TODO Check if the right emoji
         if (!e.getReaction().getUserReacted(e.getUser()))
             return;
-        DatabaseReference userRef = usersRef.child(e.getUser().getStringID());
+        DatabaseReference userRef = getUserRef(e.getGuild()).child(e.getUser().getStringID());
         userRef.child("accepted_rules").setValue(true);
     }
 
@@ -59,7 +59,7 @@ public class RoleManager {
         if (e instanceof MessageDeleteEvent)
             return;
         // TODO Somehow allow servers to create verify channels. For now, this one is che cs specific
-        if (!e.getChannel().getStringID().equals("358403953932894208")) // #verify
+        if (!e.getChannel().getName().equalsIgnoreCase("verify")) // #verify
             return;
 
         processVerifyMessage(e.getMessage());
@@ -83,7 +83,7 @@ public class RoleManager {
         final IGuild guild = message.getGuild();
 
         // Try and set the users information
-        DatabaseReference userRef = usersRef.child(message.getAuthor().getStringID());
+        DatabaseReference userRef = getUserRef(guild).child(message.getAuthor().getStringID());
         userRef.child("accepted_rules").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
@@ -91,9 +91,17 @@ public class RoleManager {
                     // If database doesn't say accepted
                     if (snapshot.getValue() == null || !(boolean) snapshot.getValue()) {
                         // If the user didn't react with the white_check_mark in rules
-                        if (!rulesChannel.getFullMessageHistory().get(0)
-                                .getReactions().get(0)
-                                .getUserReacted(message.getAuthor())) {
+                        boolean foundAccepted = false;
+                        for (IChannel channel : guild.getChannels()) {
+                            if (channel.getName().equalsIgnoreCase("rules")) {
+                                if (channel.getFullMessageHistory().get(0)
+                                        .getReactions().get(0)
+                                        .getUserReacted(message.getAuthor()))
+                                    foundAccepted = true;
+                            }
+                        }
+
+                        if (!foundAccepted) {
                             // They didn't accept rules. Tell them
                             RequestBuffer.request(() -> message.getAuthor().getOrCreatePMChannel().sendMessage("Uh oh, " +
                                     "looks like you forgot to accept the rules. Go to #rules and click the " +
@@ -101,7 +109,7 @@ public class RoleManager {
                             message.delete();
                             return;
                         } else { // If they did, means we don't have them in the db. Add them as accepted
-                            DatabaseReference userRef = usersRef.child(message.getAuthor().getStringID());
+                            DatabaseReference userRef = getUserRef(guild).child(message.getAuthor().getStringID());
                             userRef.child("accepted_rules").setValue(true);
                         }
                     }
@@ -115,14 +123,17 @@ public class RoleManager {
                     guild.setUserNickname(message.getAuthor(), firstName);
 
                     List<IRole> existing = guild.getRolesForUser(message.getAuthor());
-                    existing.add(guild.getRoleByID(356900030277222401L));
+                    existing.add(guild.getRolesByName("Members").get(0));
                     IRole[] roles = new IRole[existing.size()];
                     for (int i = 0; i < existing.size(); i++)
                         roles[i] = existing.get(i);
 
                     guild.editUserRoles(message.getAuthor(), roles);
                     message.delete();
-                } catch (Exception e) {
+                } catch (
+                        Exception e)
+
+                {
                     e.printStackTrace();
                 }
             }
@@ -136,5 +147,9 @@ public class RoleManager {
                 message.delete();
             }
         });
+    }
+
+    private DatabaseReference getUserRef(IGuild guild) {
+        return FirebaseDatabase.getInstance().getReference().child(guild.getLongID()+"").child("users");
     }
 }

@@ -5,17 +5,18 @@ import club.checs.csbot.bot.Keystore;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.security.InvalidParameterException;
 import java.util.HashMap;
 
 public class RemindWatcher {
+    private final JsonObject key;
+
     public RemindWatcher() {
-        JsonObject response = getResponse(new HttpsRequest(HttpsRequest.reqType.POST, "https://api.remind.com:443/v2/access_tokens",
-                "user[email]", Keystore.getKey("quizletUser"),
-                "user[password]", Keystore.getKey("quizletPass")));
-        System.out.println(response);
+        // Get an access key
+        key = getResponse(new HttpsRequest(HttpsRequest.reqType.POST,
+                "https://api.remind.com:443/v2/access_tokens", // Destination URL
+                "user[email]", Keystore.getKey("quizletUser"), // Username
+                "user[password]", Keystore.getKey("quizletPass"), // Pasword
+                "persist", "true")); // Tell key to persist
     }
 
     public HttpsRequest sendHttpRequest(HttpsRequest.reqType type, String url, HashMap<String, String> args) {
