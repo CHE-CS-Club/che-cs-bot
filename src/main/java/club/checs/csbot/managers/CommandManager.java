@@ -88,7 +88,8 @@ public class CommandManager {
         lastMessage.put(message.getAuthor(), System.currentTimeMillis());
         if (!pmanager.isMuted(message.getAuthor())) {
             for (Map.Entry<String, SmartCommand> set : commands.entrySet()) {
-                if (message.getContent().toLowerCase().startsWith("!" + set.getKey().toLowerCase())) {
+                // TODO Split and compare with equalsIgnoreCase the 0th index to prevent duplicate matches
+                if (message.getContent().split(" ")[0].toLowerCase().equals("!" + set.getKey().toLowerCase())) {
                     String[] argsL = message.getContent().split("\\s");
                     String[] args = new String[argsL.length - 1];
                     System.arraycopy(argsL, 1, args, 0, argsL.length - 1);
