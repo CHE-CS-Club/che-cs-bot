@@ -80,7 +80,7 @@ public class BotMain {
 
     // Creates and starts the bot
     private static IDiscordClient createClient(String token) { // Returns a new instance of the Discord client
-        ClientBuilder clientBuilder = new ClientBuilder(); // Creates the ClientBuilder instance
+        ClientBuilder clientBuilder = new ClientBuilder().setMaxReconnectAttempts(20); // Creates the ClientBuilder instance
         clientBuilder.withToken(token); // Adds the login info to the builder
         try {
             return clientBuilder.login(); // Creates the client instance and logs the client in
