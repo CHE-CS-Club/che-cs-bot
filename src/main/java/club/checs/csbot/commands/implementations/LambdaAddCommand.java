@@ -139,13 +139,16 @@ public class LambdaAddCommand extends SmartCommand {
                     /* Load and execute */
                     } else {
                         // TODO Describe errors
-                        call.sendMessage(call.getSender().mention() + ", your command had errors!");
+                        StringBuilder errors = new StringBuilder();
+                        errors.append(call.getSender().mention()).append(", your command had errors!\n```");
                         for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
-                            System.out.format("Error on line %d in %s%n",
+                            errors.append(String.format("Error on line %d in %s%n\n",
                                     diagnostic.getLineNumber(),
-                                    diagnostic.getSource().toUri());
-                            System.out.println(diagnostic.getMessage(Locale.US));
+                                    diagnostic.getSource().toUri()));
+                            errors.append(diagnostic.getMessage(Locale.US)).append("\n");
                         }
+                        errors.append("```");
+                        call.sendMessage(errors.toString());
                     }
                     fileManager.close();
                     return;
