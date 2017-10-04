@@ -21,8 +21,18 @@ import java.util.Locale;
 
 // TODO Cleanup and comment, messy af
 public class LambdaAddCommand extends SmartCommand {
-    private int i = 0;
-
+    private static int i = 0;
+    private static final String[] wrapperStart = {
+            "package dynamiccompile;",
+            "import club.checs.csbot.commands.CommandCall;",
+            "import club.checs.csbot.commands.SmartCommand;",
+            "public class DynamicCompile"+(++i)+" implements SmartCommand.OnCommand {",
+            "@Override",
+            "    public void onCommand(CommandCall call) {"};
+    private static final String[] wrapperEnd = {
+            "    }",
+            "}"
+    };
     public LambdaAddCommand(String command) {
         super(command);
         addArgument(new WordArg("commandName"));
@@ -31,27 +41,25 @@ public class LambdaAddCommand extends SmartCommand {
 
     @Override
     public void onCommand(CommandCall call) {
-        // Make sure in Java
+        // Make sure code example is in Java
         if (!((CodeArgument.CodeBlock) call.getArg("code")).getLang().equalsIgnoreCase("java")) {
             call.sendMessage(call.getSender().mention() + ", all lambdas must be programmed in java.");
             return;
         }
 
-        // Check permissions
+        // Check permissions to make sure they can call this
         if (!hasPerms(call, "356897883062272010", "291027779477176320")) { // TODO Somehow make this dynamic
             call.sendMessage("Sorry, but you do not have permissions to run this command " + call.getSender().getDisplayName(call.getEvent().getGuild()) + ".");
             return;
         }
 
-        /* Build code */
+        /*
+        ** Build the code
+        */
         // Add all the wrapping we need before user code
         StringBuilder codeBuilder = new StringBuilder();
-        codeBuilder.append("package dynamiccompile;");
-        codeBuilder.append("import club.checs.csbot.commands.CommandCall;\n" +
-                "import club.checs.csbot.commands.SmartCommand;");
-        codeBuilder.append("public class DynamicCompile").append(++i).append(" implements SmartCommand.OnCommand {");
-        codeBuilder.append("@Override\n" +
-                "    public void onCommand(CommandCall call) {");
+        for (String line : wrapperStart)
+            codeBuilder.append(line);
 
         // Add in the user code
         for (String line : ((CodeArgument.CodeBlock) call.getArg("code")).getCode())
@@ -59,8 +67,8 @@ public class LambdaAddCommand extends SmartCommand {
         String lang = ((CodeArgument.CodeBlock) call.getArg("code")).getLang();
 
         // Add all the wrapping we need after user code
-        codeBuilder.append("}\n" +
-                "}");
+        for (String line : wrapperEnd)
+            codeBuilder.append(line);
         /* Build code */
 
         call.deleteMessage();
@@ -130,6 +138,8 @@ public class LambdaAddCommand extends SmartCommand {
                         }
                     /* Load and execute */
                     } else {
+                        // TODO Describe errors
+                        call.sendMessage(call.getSender().mention() + ", your command had errors!");
                         for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
                             System.out.format("Error on line %d in %s%n",
                                     diagnostic.getLineNumber(),
@@ -138,6 +148,7 @@ public class LambdaAddCommand extends SmartCommand {
                         }
                     }
                     fileManager.close();
+                    return;
                 } catch (IOException | ClassNotFoundException | InstantiationException | IllegalAccessException exp) {
                     exp.printStackTrace();
                 }
