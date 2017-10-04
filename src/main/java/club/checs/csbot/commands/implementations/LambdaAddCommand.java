@@ -142,10 +142,9 @@ public class LambdaAddCommand extends SmartCommand {
                         StringBuilder errors = new StringBuilder();
                         errors.append(call.getSender().mention()).append(", your command had errors!\n```");
                         for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
-                            errors.append(String.format("Error on line %d in %s%n\n",
+                            errors.append(String.format("Error on line %d: %s%n",
                                     diagnostic.getLineNumber(),
-                                    diagnostic.getSource().toUri()));
-                            errors.append(diagnostic.getMessage(Locale.US)).append("\n");
+                                    diagnostic.getMessage(Locale.US)));
                         }
                         errors.append("```");
                         call.sendMessage(errors.toString());
