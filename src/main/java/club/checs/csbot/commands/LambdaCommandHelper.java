@@ -31,12 +31,6 @@ public class LambdaCommandHelper {
                 e.printStackTrace();
             }
         }));
-        cmanager.addCommand("help", new SmartCommand("help", (call) -> {
-            StringBuilder builder = new StringBuilder().append("*Commands:* ");
-            for (SmartCommand command : cmanager.getCommands().values())
-                builder.append(command.getCommand()).append(", ");
-            call.sendMessage(builder.toString().substring(0, builder.toString().length() - 2));
-        }));
         cmanager.addCommand("ryan", new SmartCommand("ryan", (call) -> {
             call.sendMessage("***Look, it has too much give!***");
         }));
@@ -52,6 +46,7 @@ public class LambdaCommandHelper {
         cmanager.addCommand("unmute", new UnmuteCommand("unmute", client, pmanager));
         cmanager.addCommand("lambda", new LambdaAddCommand("lambda"));
         cmanager.addCommand("define", new DefineCommand("define"));
+        cmanager.addCommand("help", new HelpCommand("help", cmanager));
 
         // Utility/dev commands
         cmanager.addCommand("getguild", new SmartCommand("getguild", (call) -> {

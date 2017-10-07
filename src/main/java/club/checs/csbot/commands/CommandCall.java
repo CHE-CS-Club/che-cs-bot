@@ -22,17 +22,19 @@ public class CommandCall {
     private final LinkedHashMap<String, CommandArg> smartArgs;
     private final HashMap<String, Object> argResults = new HashMap<>();
     private final String[] args;
-    private CommandManager manager;
-    private MessageReceivedEvent event;
+    private final CommandManager manager;
+    private final MessageReceivedEvent event;
+    private final SmartCommand superCommand;
 
     public CommandCall(CommandManager manager, MessageReceivedEvent event, IUser sender, String cmd, String alias, String[] args, LinkedHashMap<String,
-            CommandArg> smartArgs) {
+            CommandArg> smartArgs, SmartCommand superCommand) {
         this.smartArgs = smartArgs;
         this.sender = sender;
         this.alias = alias;
         this.args = args;
         this.manager = manager;
         this.event = event;
+        this.superCommand = superCommand;
 
         for (CommandArg arg : smartArgs.values()) {
             if (arg.hasDefault())
@@ -73,8 +75,8 @@ public class CommandCall {
                         try {
                             manager.sendMessage(sender.mention
                                     (true) + " you're missing  or have invalid input for " +
-                                    "the argument `" + argSet.getKey()
-                                    + "`. Please include it to run the command.", event);
+                                    "the argument `" + argSet.getKey() + "`. Please include it to run the command." +
+                                    "\nProper usage: " + superCommand.getHelpText(arg.getName()), event);
                         } catch (DiscordException | MissingPermissionsException | RateLimitException e) {
                             e.printStackTrace();
                         }
@@ -104,42 +106,6 @@ public class CommandCall {
 
     public Object getArg(String arg) {
         return argResults.get(arg);
-    }
-
-    public String getHelpText() {
-        return getHelpText(null);
-    }
-
-    public String getHelpText(String missedArg) {
-        StringBuilder builder = new StringBuilder();
-        boolean lastContinue = false;
-        for (Map.Entry<String, CommandArg> argSet : smartArgs.entrySet()) {
-            CommandArg arg = argSet.getValue();
-            String combined = arg.getTypeName() + ':' + argSet.getKey();
-            /*
-            if (missedArg.equalsIgnoreCase(argSet.getKey()))
-                combined = ChatColor.UNDERLINE + combined + ChatColor.RESET;
-
-            if (lastContinue && arg.isContinueIfMissing()) {
-                builder.append(ChatColor.GRAY).append(" / ").append(combined);
-                continue;
-            } else if (lastContinue) {
-                builder.append(ChatColor.GRAY).append("] ");
-            }
-
-            if (arg.isContinueIfMissing()) {
-                lastContinue = true;
-                builder.append(ChatColor.GRAY).append('[').append(combined);
-            } else {
-                if (arg.isOptional())
-                    builder.append(ChatColor.GRAY).append('[').append(combined).append(ChatColor.GRAY).append(']');
-                else
-                    builder.append(ChatColor.WHITE).append('<').append(combined).append('>');
-            }
-            */
-            // TODO Fix the above for discord messages
-        }
-        return builder.toString();
     }
 
     public CompletableFuture<IMessage> sendMessage(String message) {

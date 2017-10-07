@@ -28,8 +28,11 @@ public class CommandManager {
     }
 
     @EventSubscriber
-    public void onMesageEvent(MessageReceivedEvent event) throws DiscordException, MissingPermissionsException, RateLimitException {
+    public void onMesageEvent(MessageReceivedEvent event) throws DiscordException, MissingPermissionsException,
+            RateLimitException {
         IMessage message = event.getMessage(); // Get the message
+
+        // Check to make sure this user isn't spamming
         if (lastMessage.containsKey(message.getAuthor())) {
             // If last message was sent within 3 seconds
             if (System.currentTimeMillis() - lastMessage.get(message.getAuthor()) < 3.0 * 1000) {
@@ -62,13 +65,15 @@ public class CommandManager {
                             pmanager.mute(message.getAuthor());
                         }
                     }).start();
-                    sendMessage(message.getAuthor().mention() + " has been automatically muted for 5 minutes for spamming.", message.getChannel());
+                    sendMessage(message.getAuthor().mention() + " has been automatically muted for " +
+                            "5 minutes for spamming.", message.getChannel());
                     new Thread(() -> {
                         final long mutetime = System.currentTimeMillis();
                         while (true) {
                             if (System.currentTimeMillis() - mutetime > 5 * 60 * 1000) {
                                 pmanager.unmute(message.getAuthor());
-                                sendMessage(message.getAuthor().mention() + " has been unmuted after spamming.", message.getChannel());
+                                sendMessage(message.getAuthor().mention() + " has been unmuted after " +
+                                        "spamming.", message.getChannel());
                                 return;
                             }
                             try {
@@ -87,27 +92,41 @@ public class CommandManager {
             }
         }
         lastMessage.put(message.getAuthor(), System.currentTimeMillis());
-        if (!pmanager.isMuted(message.getAuthor())) {
-            for (Map.Entry<String, SmartCommand> set : commands.entrySet()) {
-                // TODO Split and compare with equalsIgnoreCase the 0th index to prevent duplicate matches
-                if (message.getContent().split(" ")[0].toLowerCase().equals("!" + set.getKey().toLowerCase())) {
-                    String[] argsL = message.getContent().split("\\s");
-                    String[] args = new String[argsL.length - 1];
-                    System.arraycopy(argsL, 1, args, 0, argsL.length - 1);
-                    set.getValue().onCommand(this, event, event.getMessage().getAuthor(), set.getKey(), set.getKey(), args);
-                }
-            }
-        } else {
-            // TODO Up a counter and kick them if they keep sending messages
+
+        // If the user is muted, delete message and bail processing
+        if (pmanager.isMuted(message.getAuthor())) {
             message.delete();
+            return;
         }
+
+        // Check commands and see if we have a match
+        for (Map.Entry<String, SmartCommand> set : commands.entrySet()) {
+            // If we have a match....
+            if (message.getContent().split(" ")[0].toLowerCase().equals("!" + set.getKey().toLowerCase())) {
+                // Split message into spaces for processing
+                String[] argsL = message.getContent().split("\\s");
+                // Remove first arg (it's the command)
+                String[] args = new String[argsL.length - 1];
+                System.arraycopy(argsL, 1, args, 0, argsL.length - 1);
+                // Call the command
+                set.getValue().onCommand(this, event, event.getMessage().getAuthor(), set.getKey(),
+                        set.getKey(), args);
+                // No need to check other commands now
+                break;
+            }
+        }
+    }
+
+    public SmartCommand getCommand(String command) {
+        return commands.get(command.toLowerCase());
     }
 
     public void addCommand(String command, SmartCommand smartCommand) {
         commands.put(command, smartCommand);
     }
 
-    public CompletableFuture<IMessage> sendMessage(String message, MessageReceivedEvent event) throws DiscordException, MissingPermissionsException, RateLimitException {
+    public CompletableFuture<IMessage> sendMessage(String message, MessageReceivedEvent event) throws DiscordException,
+            MissingPermissionsException, RateLimitException {
         return sendMessage(message, event.getChannel());
     }
 
@@ -119,10 +138,12 @@ public class CommandManager {
         return completableFuture;
     }
 
-    public CompletableFuture<IMessage> sendEmbedMessage(String message, MessageReceivedEvent event, EmbedObject obj) throws DiscordException, MissingPermissionsException, RateLimitException {
+    public CompletableFuture<IMessage> sendEmbedMessage(String message, MessageReceivedEvent event, EmbedObject obj)
+            throws DiscordException, MissingPermissionsException, RateLimitException {
         CompletableFuture<IMessage> completableFuture = new CompletableFuture<>();
         RequestBuffer.request(() -> {
-            completableFuture.complete(new MessageBuilder(client).appendContent(message).withChannel(event.getMessage().getChannel()).withEmbed(obj).build());
+            completableFuture.complete(new MessageBuilder(client).appendContent(message).withChannel(event.getMessage()
+                    .getChannel()).withEmbed(obj).build());
         });
         return completableFuture;
     }
