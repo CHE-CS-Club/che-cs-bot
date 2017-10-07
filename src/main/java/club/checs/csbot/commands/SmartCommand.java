@@ -81,6 +81,7 @@ public class SmartCommand {
                 continue;
             } else if (lastContinue) {
                 builder.append("] ");
+                lastContinue = false;
             }
 
             if (arg.isContinueIfMissing()) {
