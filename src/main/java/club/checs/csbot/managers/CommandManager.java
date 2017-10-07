@@ -13,6 +13,7 @@ import sx.blah.discord.util.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class CommandManager {
     private IDiscordClient client;
@@ -106,18 +107,24 @@ public class CommandManager {
         commands.put(command, smartCommand);
     }
 
-    public void sendMessage(String message, MessageReceivedEvent event) throws DiscordException, MissingPermissionsException, RateLimitException {
-        sendMessage(message, event.getChannel());
+    public CompletableFuture<IMessage> sendMessage(String message, MessageReceivedEvent event) throws DiscordException, MissingPermissionsException, RateLimitException {
+        return sendMessage(message, event.getChannel());
     }
 
-    public void sendMessage(String message, IChannel channel) {
+    public CompletableFuture<IMessage> sendMessage(String message, IChannel channel) {
+        CompletableFuture<IMessage> completableFuture = new CompletableFuture<>();
         RequestBuffer.request(() -> {
-            channel.sendMessage(message);
+            completableFuture.complete(channel.sendMessage(message));
         });
+        return completableFuture;
     }
 
-    public void sendEmbedMessage(String message, MessageReceivedEvent event, EmbedObject obj) throws DiscordException, MissingPermissionsException, RateLimitException {
-        new MessageBuilder(client).appendContent(message).withChannel(event.getMessage().getChannel()).withEmbed(obj).build();
+    public CompletableFuture<IMessage> sendEmbedMessage(String message, MessageReceivedEvent event, EmbedObject obj) throws DiscordException, MissingPermissionsException, RateLimitException {
+        CompletableFuture<IMessage> completableFuture = new CompletableFuture<>();
+        RequestBuffer.request(() -> {
+            completableFuture.complete(new MessageBuilder(client).appendContent(message).withChannel(event.getMessage().getChannel()).withEmbed(obj).build());
+        });
+        return completableFuture;
     }
 
     public HashMap<String, SmartCommand> getCommands() {

@@ -4,6 +4,7 @@ import club.checs.csbot.commands.arguments.CommandArg;
 import club.checs.csbot.managers.CommandManager;
 import sx.blah.discord.api.internal.json.objects.EmbedObject;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
+import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
@@ -12,6 +13,7 @@ import sx.blah.discord.util.RateLimitException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 // TODO Javadoc
 public class CommandCall {
@@ -140,22 +142,24 @@ public class CommandCall {
         return builder.toString();
     }
 
-    public void sendMessage(String message) {
+    public CompletableFuture<IMessage> sendMessage(String message) {
         // TODO Output better missing args error
         try {
-            manager.sendMessage(message, event);
+            return manager.sendMessage(message, event);
         } catch (DiscordException | MissingPermissionsException | RateLimitException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
-    public void sendEmbedMessage(String message, EmbedObject obj) {
+    public CompletableFuture<IMessage> sendEmbedMessage(String message, EmbedObject obj) {
         // TODO Output better missing args error
         try {
-            manager.sendEmbedMessage(message, event, obj);
+            return manager.sendEmbedMessage(message, event, obj);
         } catch (DiscordException | MissingPermissionsException | RateLimitException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     public void deleteMessage() {

@@ -51,6 +51,7 @@ public class LambdaCommandHelper {
         cmanager.addCommand("mute", new MuteCommand("mute", client, pmanager));
         cmanager.addCommand("unmute", new UnmuteCommand("unmute", client, pmanager));
         cmanager.addCommand("lambda", new LambdaAddCommand("lambda"));
+        cmanager.addCommand("define", new DefineCommand("define"));
 
         // Utility/dev commands
         cmanager.addCommand("getguild", new SmartCommand("getguild", (call) -> {

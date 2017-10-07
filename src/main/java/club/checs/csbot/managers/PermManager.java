@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class PermManager {
 
-    ArrayList<IUser> muted = new ArrayList<IUser>();
+    private ArrayList<IUser> muted = new ArrayList<IUser>();
 
     public PermManager() {
         //TODO: Add Useful Constructor

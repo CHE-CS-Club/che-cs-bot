@@ -19,4 +19,6 @@ dependencies {
     compile 'com.sedmelluq:lavaplayer:1.2.29'
     compile group: 'com.google.code.gson', name: 'gson', version: '2.8.1'
     compile 'com.google.firebase:firebase-admin:5.3.1'
+    // https://mvnrepository.com/artifact/javax.xml.parsers/jaxp-api
+    compile group: 'javax.xml.parsers', name: 'jaxp-api', version: '1.4.5'
 }

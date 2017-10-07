@@ -6,12 +6,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.InvalidParameterException;
-
-import static club.checs.csbot.bot.HttpsRequest.reqType.POST;
+import java.util.concurrent.CompletableFuture;
 
 public class HttpsRequest {
 
     public enum reqType {GET, POST}
+
     private URL url;
     private reqType requestType;
 
@@ -34,6 +34,7 @@ public class HttpsRequest {
     }
 
     public HttpsRequest(reqType type, String url, String... args) {
+        this.requestType = type;
         // Make sure we have valid args
         if ((args.length & 1) != 0) // If number is odd
             throw new InvalidParameterException("Need even number of arguments");
@@ -55,22 +56,33 @@ public class HttpsRequest {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        this.requestType = type;
     }
 
-    public String getRawResponse() {
+    public CompletableFuture<String> getRawResponseFuture() {
+        CompletableFuture<String> completableFuture = new CompletableFuture<>();
+        new Thread(() -> completableFuture.complete(getRawResponse())).start();
+        return completableFuture;
+    }
+
+    public CompletableFuture<InputStream> getRawInputFuture() {
+        CompletableFuture<InputStream> completableFuture = new CompletableFuture<>();
+        new Thread(() -> completableFuture.complete(getRawInput())).start();
+        return completableFuture;
+    }
+
+    public InputStream getRawInput() {
         switch (requestType) {
-            case GET : {
+            case GET: {
                 try {
                     HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-                    return readBufferedInput(conn.getInputStream());
+                    return conn.getInputStream();
 
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 return null;
             }
-            case POST : {
+            case POST: {
                 try {
                     // Setup connection
                     URL baseUrl = new URL(url.getProtocol() + "://" + url.getAuthority() + url.getPath()); // Remove args for initial connection
@@ -83,12 +95,12 @@ public class HttpsRequest {
                     conn.setFixedLengthStreamingMode(query.length);
                     conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
                     conn.connect();
-                    try(OutputStream os = conn.getOutputStream()) {
+                    try (OutputStream os = conn.getOutputStream()) {
                         os.write(query);
                     }
 
                     // Read the buffered input stream
-                    return readBufferedInput(conn.getInputStream());
+                    return conn.getInputStream();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -98,19 +110,29 @@ public class HttpsRequest {
         return null;
     }
 
-    String readBufferedInput (InputStream stream) throws IOException {
+    public String getRawResponse() {
+        InputStream rawInput = getRawInput();
+        try {
+            return rawInput == null ? null : readBufferedInput(rawInput);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private String readBufferedInput(InputStream stream) throws IOException {
         BufferedReader br =
                 new BufferedReader(
                         new InputStreamReader(stream));
 
-        String input, output = "";
+        String input;StringBuilder output = new StringBuilder();
 
         while ((input = br.readLine()) != null)
-            output += input;
+            output.append(input);
 
         br.close();
         stream.close();
-        return output;
+        return output.toString();
     }
 
 
