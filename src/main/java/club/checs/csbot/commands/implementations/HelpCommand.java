@@ -25,8 +25,8 @@ public class HelpCommand extends SmartCommand {
             SmartCommand command = cmanager.getCommand(call.getArg("command").toString());
             if (command != null) {
                 if (command.getHelpText().length() != 0)
-                    call.sendMessage(call.getSender().mention() + " Usage for `" + call.getArg("command") + "`: "
-                            + command.getHelpText());
+                    call.sendMessage(call.getSender().mention() + " Usage for `" + call.getArg("command") + "`:\n"
+                            + "   !" + command.getCommand() + " " + command.getHelpText());
                 else
                     call.sendMessage(call.getSender().mention() + " The command `" + call.getArg("command")
                             + "` has no arguments.");
