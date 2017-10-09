@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public abstract class VexQueryCommand extends SmartCommand {
-    private final String SEASON = "inthezone";
+    private final String SEASON = "in%20the%20zone";
     private final String api;
 
     public VexQueryCommand(String command, String api) {

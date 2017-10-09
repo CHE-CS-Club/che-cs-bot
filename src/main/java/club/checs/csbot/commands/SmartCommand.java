@@ -89,16 +89,15 @@ public class SmartCommand {
                 builder.append('[').append(combined);
             } else {
                 if (arg.isOptional())
-                    builder.append('[').append(combined).append(']');
+                    builder.append('[').append(combined).append("] ");
                 else
-                    builder.append('<').append(combined).append('>');
+                    builder.append('<').append(combined).append("> ");
             }
             // TODO Fix the above for discord messages
         }
         // Clean up any lingering continue if missing
-        if (lastContinue) {
+        if (lastContinue)
             builder.append("]");
-        }
         return builder.toString();
     }
 

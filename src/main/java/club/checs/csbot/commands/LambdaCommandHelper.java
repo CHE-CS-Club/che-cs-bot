@@ -2,6 +2,7 @@ package club.checs.csbot.commands;
 
 import club.checs.csbot.commands.implementations.*;
 import club.checs.csbot.commands.implementations.vexcommands.AwardsCommand;
+import club.checs.csbot.commands.implementations.vexcommands.CompetitionsCommand;
 import club.checs.csbot.commands.implementations.vexcommands.RankCommand;
 import club.checs.csbot.commands.implementations.vexcommands.TeamCommand;
 import club.checs.csbot.managers.CommandManager;
@@ -41,6 +42,7 @@ public class LambdaCommandHelper {
         cmanager.addCommand("usertest", new UserCommand("usertest", client));
         cmanager.addCommand("awards", new AwardsCommand("awards"));
         cmanager.addCommand("team", new TeamCommand("team"));
+        cmanager.addCommand("competitions", new CompetitionsCommand("competitions"));
         cmanager.addCommand("rank", new RankCommand("rank"));
         cmanager.addCommand("mute", new MuteCommand("mute", client, pmanager));
         cmanager.addCommand("unmute", new UnmuteCommand("unmute", client, pmanager));
