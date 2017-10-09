@@ -1,6 +1,8 @@
 package club.checs.csbot.commands.implementations.vexcommands;
 
 import club.checs.csbot.commands.CommandCall;
+import club.checs.csbot.commands.arguments.IntArg;
+import club.checs.csbot.commands.arguments.WordArg;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import sx.blah.discord.util.EmbedBuilder;
@@ -18,17 +20,26 @@ public class CompetitionsCommand extends VexQueryCommand {
     public CompetitionsCommand(String command) {
         super(command, "get_events");
         dateiso.setTimeZone(TimeZone.getDefault());
+        addArgs(new IntArg("count").setContinueIfMissing(true));
+        addArgs(new WordArg("command").setContinueIfMissing(true));
+
     }
 
     @Override
     public void onCommand(CommandCall call) {
+        int amount = 3;
+        if (call.hasArg("count"))
+            amount = (Integer) call.getArg("count");
+        else if (call.hasArg("command"))
+            if (((String) call.getArg("command")).equalsIgnoreCase("all"))
+                amount = -1;
         JsonObject response = query("&region=New%20Jersey&program=vrc&status=future");
         JsonArray results = getResults(response);
         System.out.println(results);
 
         EmbedBuilder builder = new EmbedBuilder().withColor(Color.blue);
         StringBuilder description = new StringBuilder();
-        for (int i = 0; i < ((results.size() >= 4) ? 4 : results.size()); i++) {
+        for (int i = 0; i < ((results.size() >= 4 && amount != -1) ? amount : results.size()); i++) {
             JsonObject result = results.get(i).getAsJsonObject();
             String sku = result.get("sku").getAsString();
             String eventName = result.get("name").getAsString();
@@ -43,6 +54,9 @@ public class CompetitionsCommand extends VexQueryCommand {
         }
         builder.withDesc(description.toString());
 
-        call.sendEmbedMessage("__**The next four competitions:**__", builder.build());
+        if (amount != -1)
+            call.sendEmbedMessage("__**The next " + amount + " competitions:**__", builder.build());
+        else
+            call.sendEmbedMessage("__**All available competitions:**__", builder.build());
     }
 }
